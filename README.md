@@ -27,6 +27,11 @@ Pull from Docker Hub:
 docker pull <your-username>/wordpress-redis:latest
 ```
 
+Pull a specific Redis-backed release:
+```bash
+docker pull <your-username>/wordpress-redis:8.6.1
+```
+
 Run the container:
 ```bash
 docker run -d \
@@ -55,18 +60,12 @@ docker run -d \
 ### Creating Versioned Releases
 
 1. Make and commit your changes
-2. Create and push a version tag:
+2. Create and push a tag that matches the Redis version in the `Dockerfile`:
    ```bash
-   git tag -a v1.0.0 -m "Release version 1.0.0"
-   git push origin v1.0.0
+   git tag -a v8.6.1 -m "Release Redis 8.6.1"
+   git push origin v8.6.1
    ```
-   This creates multiple Docker tags: `1.0.0`, `1.0`, `1`, and `latest`
-
-### Versioning Guidelines
-
-- **Patch update** (bug fixes): `v1.0.1`
-- **Minor update** (new features): `v1.1.0`
-- **Major update** (breaking changes): `v2.0.0`
+   This creates Docker tags such as `8.6.1`, `8.6`, `8`, and `latest`
 
 ## Security Note
 
