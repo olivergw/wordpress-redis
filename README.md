@@ -1,38 +1,41 @@
 # Wordpress-Redis
-## A simple Redis container optimized for WordPress
 
-A Redis container configured specifically for WordPress object caching with MariaDB backend.
+A minimal Redis image optimised for WordPress object caching.
+
+Built from an official Alpine-based Redis image with a single config tweak: 512 MB maxmemory with LRU eviction.
 
 ## Features
 
-- **Memory Management**: 256MB limit with LRU eviction policy
-- **Security**: Localhost binding, password protection, dangerous commands disabled
-- **Performance**: Optimized for cache use with disabled persistence
-- **Health Check**: Built-in Redis ping check
-- **Multi-platform**: Supports linux/amd64 and linux/arm64
+- **Memory**: 512 MB limit with `allkeys-lru` eviction
+- **Health Check**: Built-in `PING` via `HEALTHCHECK` instruction
+- **Multi-platform**: Multi-arch images for `linux/amd64` and `linux/arm64`
+- **Auto-tagged**: Docker tags track every Redis minor/major release (e.g. `8.6.4`, `8-alpine`)
 
 ## Configuration
 
-- maxmemory: 256MB
-- maxmemory-policy: allkeys-lru
-- Persistence: Disabled (save "", appendonly no)
-- Client timeout: 300 seconds
-- Max clients: 1000
-- Slowlog enabled for troubleshooting
+Only two lines in `redis.conf`:
+
+| Setting | Value |
+|---------|-------|
+| `maxmemory` | `512MB` |
+| `maxmemory-policy` | `allkeys-lru` |
+
+Everything else uses Redis defaults — no persistence, no password, no command renaming.  
+Edit `redis.conf` if you need more tuning.
 
 ## Usage
 
-Pull from Docker Hub:
+Pull the latest release:
 ```bash
 docker pull <your-username>/wordpress-redis:latest
 ```
 
-Pull a specific Redis-backed release:
+Pull a specific version:
 ```bash
-docker pull <your-username>/wordpress-redis:8.6.1
+docker pull <your-username>/wordpress-redis:8.6.4
 ```
 
-Run the container:
+Run:
 ```bash
 docker run -d \
   --name wordpress-redis \
@@ -42,31 +45,24 @@ docker run -d \
 
 ## Development Workflow
 
-### Making Changes
+### Auto-build on push
 
-1. Make your changes to files (redis.conf, Dockerfile, etc.)
-2. Test locally (optional):
+Pushing to `master` automatically builds and pushes the `latest` tag to Docker Hub.
+No extra steps needed.
+
+### Versioned releases
+
+1. Update the Redis version in the `Dockerfile` (e.g. `FROM redis:8.6.4-alpine`).
+2. Create and push an annotated tag:
    ```bash
-   docker build -t wordpress-redis:test .
+   git tag -a v8.6.4 -m "Release Redis 8.6.4"
+   git push origin v8.6.4
    ```
-3. Commit and push to master:
-   ```bash
-   git add .
-   git commit -m "Your descriptive message"
-   git push origin master
-   ```
-   This automatically builds and pushes the `latest` tag to Docker Hub.
+   This triggers the workflow to build multi-arch images tagged as:
+   `8.6.4`, `8.6`, `8`, `8.6.4-alpine`, `8-alpine`, and `latest`.
 
-### Creating Versioned Releases
+### Local testing (optional)
 
-1. Make and commit your changes
-2. Create and push a tag that matches the Redis version in the `Dockerfile`:
-   ```bash
-   git tag -a v8.6.1 -m "Release Redis 8.6.1"
-   git push origin v8.6.1
-   ```
-   This creates Docker tags such as `8.6.1`, `8.6`, `8`, and `latest`
-
-## Security Note
-
-Remember to change the default password in `redis.conf` before deploying to production!
+```bash
+docker build -t wordpress-redis:test .
+```
