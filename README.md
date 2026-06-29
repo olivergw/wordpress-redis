@@ -9,7 +9,7 @@ Built from an official Alpine-based Redis image with a single config tweak: 512 
 - **Memory**: 512 MB limit with `allkeys-lru` eviction
 - **Health Check**: Built-in `PING` via `HEALTHCHECK` instruction
 - **Multi-platform**: Multi-arch images for `linux/amd64` and `linux/arm64`
-- **Auto-tagged**: Docker tags track every Redis minor/major release (e.g. `8.6.4`, `8-alpine`)
+- **Auto-tagged**: Every push produces a version tag from the Dockerfile, plus `latest` and commit SHA
 
 ## Configuration
 
@@ -43,25 +43,21 @@ docker run -d \
   <your-username>/wordpress-redis:latest
 ```
 
-## Development Workflow
+## Tags
 
-### Auto-build on push
+For the current base image `redis:8.6.4-alpine`:
 
-Pushing to `master` automatically builds and pushes the `latest` tag to Docker Hub.
-No extra steps needed.
+| Tag | Example | Triggered when |
+|-----|---------|----------------|
+| Version from Dockerfile | `8.6.4` (from `redis:8.6.4-alpine`) | Every push to `main` |
+| `latest` | `olivergw/wordpress-redis:latest` | Push to `main` |
+| Commit SHA | Short + long SHA | Every push |
 
-### Versioned releases
+Just update the `FROM` line in the Dockerfile and push to `main`.
 
-1. Update the Redis version in the `Dockerfile` (e.g. `FROM redis:8.6.4-alpine`).
-2. Create and push an annotated tag:
-   ```bash
-   git tag -a v8.6.4 -m "Release Redis 8.6.4"
-   git push origin v8.6.4
-   ```
-   This triggers the workflow to build multi-arch images tagged as:
-   `8.6.4`, `8.6`, `8`, `8.6.4-alpine`, `8-alpine`, and `latest`.
+## Development
 
-### Local testing (optional)
+Local testing:
 
 ```bash
 docker build -t wordpress-redis:test .

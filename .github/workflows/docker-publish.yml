@@ -3,12 +3,10 @@ name: Build and Push to Docker Hub
 on:
   push:
     branches:
-      - master
-    tags:
-      - 'v*'
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 env:
   DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/wordpress-redis
@@ -34,17 +32,7 @@ jobs:
         id: redis_version
         run: |
           REDIS_TAG=$(grep -oP 'FROM redis:\K[^\s]+' Dockerfile)
-          echo "tag=${REDIS_TAG}" >> $GITHUB_OUTPUT
-          VERSION=$(echo "${REDIS_TAG}" | grep -oP '^[\d.]+')
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          echo "minor=${VERSION%.*}" >> $GITHUB_OUTPUT
-          echo "major=${VERSION%%.*}" >> $GITHUB_OUTPUT
-          VARIANT=$(echo "${REDIS_TAG}" | grep -oP '(?<=[\d.]-).*' || true)
-          if [ -n "${VARIANT}" ]; then
-            echo "version_variant=${VERSION}-${VARIANT}" >> $GITHUB_OUTPUT
-            echo "minor_variant=${VERSION%.*}-${VARIANT}" >> $GITHUB_OUTPUT
-            echo "major_variant=${VERSION%%.*}-${VARIANT}" >> $GITHUB_OUTPUT
-          fi
+          echo "tag=${REDIS_TAG%-*}" >> $GITHUB_OUTPUT
 
       - name: Extract metadata
         id: meta
@@ -52,18 +40,10 @@ jobs:
         with:
           images: ${{ env.DOCKER_IMAGE }}
           tags: |
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+            type=raw,value=${{ steps.redis_version.outputs.tag }},enable={{is_default_branch}}
             type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value=${{ steps.redis_version.outputs.tag }}
-            type=raw,value=${{ steps.redis_version.outputs.version_variant }}
-            type=raw,value=${{ steps.redis_version.outputs.minor_variant }}
-            type=raw,value=${{ steps.redis_version.outputs.major_variant }}
-            type=raw,value=${{ steps.redis_version.outputs.version }}
-            type=raw,value=${{ steps.redis_version.outputs.minor }}
-            type=raw,value=${{ steps.redis_version.outputs.major }}
+            type=sha,format=short
+            type=sha,format=long
       
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
