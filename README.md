@@ -23,6 +23,11 @@ Only two lines in `redis.conf`:
 Everything else uses Redis defaults — no persistence, no password, no command renaming.  
 Edit `redis.conf` if you need more tuning.
 
+Unless a consuming deployment mounts another Redis configuration, this
+repository's `redis.conf` remains the source of truth for cache memory and
+eviction policy. Container memory limits remain deployment concerns and should
+be set separately in Compose or the chosen orchestrator.
+
 ## Usage
 
 Pull the latest release:
