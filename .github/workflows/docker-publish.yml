@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/wordpress-redis
+  DOCKER_IMAGE: olivergw/wordpress-redis
 
 jobs:
   build:
