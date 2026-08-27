@@ -8,6 +8,7 @@ This repository builds a small Redis image for WordPress object caching.
 - `redis.conf` defines the cache memory ceiling and eviction policy.
 - `docker-healthcheck` performs the container health probe.
 - `.github/workflows/docker-publish.yml` builds `linux/amd64` and `linux/arm64` images and publishes Alpine aliases.
+- `.github/dependabot.yml` checks the Docker base and workflow actions weekly.
 - `README.md` documents behavior, tags, and usage.
 
 Keep deployment topology and container resource limits in consuming Compose repositories.
@@ -21,7 +22,7 @@ docker run -d --rm --name wordpress-redis-test wordpress-redis:test
 docker exec wordpress-redis-test redis-cli ping
 ```
 
-After the runtime check, stop the test container with `docker stop wordpress-redis-test`. Pull requests run a multi-platform build without pushing.
+After the runtime check, stop the test container with `docker stop wordpress-redis-test`. Pull requests run a multi-platform build without pushing. Dependabot opens weekly update pull requests from GitHub-hosted infrastructure.
 
 ## Coding Style & Naming Conventions
 

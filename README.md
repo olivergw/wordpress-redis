@@ -68,6 +68,14 @@ For the current base image `redis:8.10.1-alpine`:
 
 The Alpine aliases mirror the Docker Official Image tags. `latest` is an additional convenience alias for the newest custom image. Update the `FROM` line and push to `main` to publish a new release.
 
+### Automated updates
+
+Dependabot checks the official Redis base image every Monday at 09:10
+Europe/London and opens a pull request when a newer compatible tag is available.
+It checks GitHub Actions shortly afterwards. Pull requests build both supported
+architectures without publishing; merging a successful PR publishes the new
+image and aliases from `main`. This process runs entirely on GitHub.
+
 ## Development
 
 Local testing:
