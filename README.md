@@ -75,3 +75,10 @@ Local testing:
 ```bash
 docker build -t wordpress-redis:test .
 ```
+
+## License
+
+This repository's original Dockerfile, healthcheck, configuration, workflow,
+and documentation are licensed under the [MIT License](LICENSE). Redis and
+software included in the resulting image retain their respective upstream
+licenses.
