@@ -9,7 +9,7 @@ Built from an official Alpine-based Redis image with a single config tweak: 512 
 - **Memory**: 512 MB limit with `allkeys-lru` eviction
 - **Health Check**: Built-in `PING` via `HEALTHCHECK` instruction
 - **Multi-platform**: Multi-arch images for `linux/amd64` and `linux/arm64`
-- **Auto-tagged**: Every push produces a version tag from the Dockerfile, plus `latest` and commit SHA
+- **Auto-tagged**: Every push produces Alpine aliases derived from the Dockerfile, plus `latest`
 
 ## Configuration
 
@@ -27,12 +27,12 @@ Edit `redis.conf` if you need more tuning.
 
 Pull the latest release:
 ```bash
-docker pull <your-username>/wordpress-redis:latest
+docker pull olivergw/wordpress-redis:latest
 ```
 
 Pull a specific version:
 ```bash
-docker pull <your-username>/wordpress-redis:8.6.4
+docker pull olivergw/wordpress-redis:8.10.1-alpine
 ```
 
 Run:
@@ -40,20 +40,22 @@ Run:
 docker run -d \
   --name wordpress-redis \
   -p 6379:6379 \
-  <your-username>/wordpress-redis:latest
+  olivergw/wordpress-redis:latest
 ```
 
 ## Tags
 
-For the current base image `redis:8.6.4-alpine`:
+For the current base image `redis:8.10.1-alpine`:
 
 | Tag | Example | Triggered when |
 |-----|---------|----------------|
-| Version from Dockerfile | `8.6.4` (from `redis:8.6.4-alpine`) | Every push to `main` |
+| Exact version | `8.10.1-alpine` | Every push to `main` |
+| Minor version | `8.10-alpine` | Every push to `main` |
+| Major version | `8-alpine` | Every push to `main` |
+| Distribution | `alpine` | Every push to `main` |
 | `latest` | `olivergw/wordpress-redis:latest` | Push to `main` |
-| Commit SHA | Short + long SHA | Every push |
 
-Just update the `FROM` line in the Dockerfile and push to `main`.
+The Alpine aliases mirror the Docker Official Image tags. `latest` is an additional convenience alias for the newest custom image. Update the `FROM` line and push to `main` to publish a new release.
 
 ## Development
 

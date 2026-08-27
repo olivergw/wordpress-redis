@@ -1,4 +1,4 @@
-FROM redis:8.6.4-alpine
+FROM redis:8.10.1-alpine
 
 COPY docker-healthcheck /usr/local/bin/
 HEALTHCHECK CMD ["docker-healthcheck"]

@@ -17,36 +17,43 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Extract Redis version
+      - name: Extract Redis image tags
         id: redis_version
         run: |
-          REDIS_TAG=$(grep -oP 'FROM redis:\K[^\s]+' Dockerfile)
-          echo "tag=${REDIS_TAG%-*}" >> $GITHUB_OUTPUT
+          REDIS_TAG=$(awk '$1 == "FROM" && $2 ~ /^redis:/ { sub(/^redis:/, "", $2); print $2; exit }' Dockerfile)
+          REDIS_VERSION="${REDIS_TAG%%-*}"
+          REDIS_VARIANT="${REDIS_TAG#*-}"
+          echo "tag=${REDIS_TAG}" >> "$GITHUB_OUTPUT"
+          echo "minor=${REDIS_VERSION%.*}" >> "$GITHUB_OUTPUT"
+          echo "major=${REDIS_VERSION%%.*}" >> "$GITHUB_OUTPUT"
+          echo "variant=${REDIS_VARIANT}" >> "$GITHUB_OUTPUT"
 
       - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.DOCKER_IMAGE }}
           tags: |
             type=raw,value=${{ steps.redis_version.outputs.tag }},enable={{is_default_branch}}
+            type=raw,value=${{ steps.redis_version.outputs.minor }}-${{ steps.redis_version.outputs.variant }},enable={{is_default_branch}}
+            type=raw,value=${{ steps.redis_version.outputs.major }}-${{ steps.redis_version.outputs.variant }},enable={{is_default_branch}}
+            type=raw,value=${{ steps.redis_version.outputs.variant }},enable={{is_default_branch}}
             type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,format=short
-            type=sha,format=long
       
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
