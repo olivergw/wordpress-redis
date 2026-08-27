@@ -40,13 +40,19 @@ Pull a specific version:
 docker pull olivergw/wordpress-redis:8.10.1-alpine
 ```
 
-Run:
+Run locally with the port restricted to the host loopback interface:
 ```bash
 docker run -d \
   --name wordpress-redis \
-  -p 6379:6379 \
+  -p 127.0.0.1:6379:6379 \
   olivergw/wordpress-redis:latest
 ```
+
+## Security
+
+This image does not configure Redis authentication or TLS. Do not publish port
+`6379` on a public or otherwise untrusted network. In production, attach Redis
+and its WordPress consumer to a private container network without a host port.
 
 ## Tags
 
